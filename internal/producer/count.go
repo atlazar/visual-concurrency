@@ -29,12 +29,12 @@ func NewCountProducer(ctx context.Context, name string, startDelay time.Duration
 	}
 }
 
-func (w *countProducer) Produce() {
+func (p *countProducer) Produce() {
 	ticker := time.NewTicker(sleepSec * time.Second)
 	defer ticker.Stop()
 
-	if w.startDelay.Nanoseconds() > 0 {
-		time.Sleep(w.startDelay)
+	if p.startDelay.Nanoseconds() > 0 {
+		time.Sleep(p.startDelay)
 	}
 
 	var t time.Time
@@ -42,22 +42,25 @@ func (w *countProducer) Produce() {
 		select {
 		case t = <-ticker.C:
 			select {
-			case w.ticks <- dto.Tick{
-				Worker:    w.name,
+			case p.ticks <- dto.Tick{
+				Worker:    p.name,
 				Timestamp: t,
 				Count:     i,
 			}:
 			default:
-				fmt.Printf("%s unable to write count value\n", w.name)
+				fmt.Printf("%s unable to write count value\n", p.name)
 			}
-		case <-w.ctx.Done():
-			fmt.Printf("%s interrupted by: %v\n", w.name, w.ctx.Err())
-			close(w.ticks)
+		case <-p.ctx.Done():
+			fmt.Printf("%s interrupted by: %v\n", p.name, p.ctx.Err())
 			return
 		}
 	}
 }
 
-func (w *countProducer) Data() <-chan dto.Tick {
-	return w.ticks
+func (p *countProducer) Data() <-chan dto.Tick {
+	return p.ticks
+}
+
+func (p *countProducer) Close() {
+	close(p.ticks)
 }

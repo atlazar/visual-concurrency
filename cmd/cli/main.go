@@ -28,8 +28,14 @@ func main() {
 	c1 := consumer.NewStdOutConsumer[dto.Tick](ctx, "consumer-1", w1.Data())
 	c2 := consumer.NewStdOutConsumer[dto.Tick](ctx, "consumer-2", w2.Data())
 
-	wg.Go(w1.Produce)
-	wg.Go(w2.Produce)
+	wg.Go(func() {
+		defer w1.Close()
+		w1.Produce()
+	})
+	wg.Go(func() {
+		defer w2.Close()
+		w2.Produce()
+	})
 	wg.Go(c1.Consume)
 	wg.Go(c2.Consume)
 
