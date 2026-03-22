@@ -1,4 +1,4 @@
-package worker
+package producer
 
 import (
 	"context"
@@ -13,15 +13,15 @@ const (
 	countMax = 10
 )
 
-type countWorker struct {
+type countProducer struct {
 	ctx        context.Context
 	name       string
 	startDelay time.Duration
 	ticks      chan dto.Tick
 }
 
-func NewCountWorker(ctx context.Context, name string, startDelay time.Duration) Worker[dto.Tick] {
-	return &countWorker{
+func NewCountProducer(ctx context.Context, name string, startDelay time.Duration) Producer[dto.Tick] {
+	return &countProducer{
 		ctx:        ctx,
 		name:       name,
 		startDelay: startDelay,
@@ -29,7 +29,7 @@ func NewCountWorker(ctx context.Context, name string, startDelay time.Duration) 
 	}
 }
 
-func (w *countWorker) Do() {
+func (w *countProducer) Produce() {
 	ticker := time.NewTicker(sleepSec * time.Second)
 	defer ticker.Stop()
 
@@ -58,6 +58,6 @@ func (w *countWorker) Do() {
 	}
 }
 
-func (w *countWorker) Data() <-chan dto.Tick {
+func (w *countProducer) Data() <-chan dto.Tick {
 	return w.ticks
 }
