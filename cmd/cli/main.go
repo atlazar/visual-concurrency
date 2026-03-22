@@ -8,6 +8,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/atlazar/visual-concurrency/internal/consumer"
+	"github.com/atlazar/visual-concurrency/internal/dto"
 	"github.com/atlazar/visual-concurrency/internal/worker"
 )
 
@@ -24,6 +26,12 @@ func main() {
 	wg.Go(w1.Do)
 	w2 := worker.NewCountWorker(ctx, "worker-2", hangSec*time.Second)
 	wg.Go(w2.Do)
+
+	c1 := consumer.NewStdOutConsumer[dto.Tick](ctx, w1.Data())
+	wg.Go(c1.DoConsume)
+
+	c2 := consumer.NewStdOutConsumer[dto.Tick](ctx, w2.Data())
+	wg.Go(c2.DoConsume)
 
 	go func() {
 		//If all goroutine complete - cancel context to gracefully exit process
