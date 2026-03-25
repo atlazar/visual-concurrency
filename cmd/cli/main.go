@@ -4,13 +4,9 @@ import (
 	"context"
 	"fmt"
 	"os/signal"
-	"sync"
 	"syscall"
-	"time"
 
-	"github.com/atlazar/visual-concurrency/internal/consumer"
-	"github.com/atlazar/visual-concurrency/internal/dto"
-	"github.com/atlazar/visual-concurrency/internal/producer"
+	"github.com/atlazar/visual-concurrency/internal/cli"
 )
 
 const (
@@ -21,23 +17,8 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	var wg sync.WaitGroup
-	w1 := producer.NewCountProducer(ctx, "producer-1", time.Duration(0))
-	w2 := producer.NewCountProducer(ctx, "producer-2", hangSec*time.Second)
-
-	c1 := consumer.NewStdOutConsumer[dto.Tick](ctx, "consumer-1", w1.Data())
-	c2 := consumer.NewStdOutConsumer[dto.Tick](ctx, "consumer-2", w2.Data())
-
-	wg.Go(func() {
-		defer w1.Close()
-		w1.Produce()
-	})
-	wg.Go(func() {
-		defer w2.Close()
-		w2.Produce()
-	})
-	wg.Go(c1.Consume)
-	wg.Go(c2.Consume)
+	r := cli.NewApp(ctx)
+	wg := r.Run()
 
 	go func() {
 		//If all goroutine complete - cancel context to gracefully exit process
