@@ -28,7 +28,7 @@ func (c *stdOutConsumer[T]) Consume() {
 		select {
 		case value, ok := <-c.in:
 			if !ok {
-				fmt.Printf("consume channel is close for %s\n", c.name)
+				fmt.Printf("%s consume channel is closed\n", c.name)
 				return
 			}
 			fmt.Println(value)
