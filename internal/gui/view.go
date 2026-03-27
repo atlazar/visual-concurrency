@@ -2,24 +2,22 @@ package gui
 
 import (
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
 type MainView struct {
-	CompList *widget.List
+	Container *fyne.Container
 }
 
 func NewMainView() *MainView {
-	compList := widget.NewList(
-		func() int {
-			return 2
-		},
-		func() fyne.CanvasObject {
-			return widget.NewLabel("not started")
-		},
-		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText("hello")
-		},
-	)
-	return &MainView{CompList: compList}
+	return &MainView{
+		Container: container.New(
+			layout.NewVBoxLayout(),
+			widget.NewLabel("counter 1"),
+			widget.NewLabel("counter 2"),
+			widget.NewButton("Open", func() {}),
+		),
+	}
 }
