@@ -2,13 +2,14 @@ package main
 
 import (
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/widget"
+	"github.com/atlazar/visual-concurrency/internal/gui"
 )
 
 func main() {
 	a := app.New()
 
 	w := a.NewWindow("VisualConcurrency")
-	w.SetContent(widget.NewLabel("Hello World"))
+	view := gui.NewMainView()
+	w.SetContent(view.CompList)
 	w.ShowAndRun()
 }
