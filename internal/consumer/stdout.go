@@ -5,10 +5,6 @@ import (
 	"fmt"
 )
 
-type Consumer[T fmt.Stringer] interface {
-	Consume()
-}
-
 type stdOutConsumer[T fmt.Stringer] struct {
 	ctx  context.Context
 	name string

@@ -9,8 +9,8 @@ import (
 )
 
 type App struct {
-	view      *view.CounterView
-	presenter *presenter.CounterPresenter
+	view      *view.Counter
+	presenter *presenter.Counter
 }
 
 func NewApp() *App {
