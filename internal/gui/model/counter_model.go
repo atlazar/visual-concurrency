@@ -11,30 +11,34 @@ import (
 )
 
 type CounterModel struct {
-	counterOne string
-	counterTwo string
+	counterOneHandler func(string)
+	counterTwoHandler func(string)
 }
 
 func NewCounterModel() *CounterModel {
 	return &CounterModel{
-		counterOne: "one",
-		counterTwo: "two",
+		counterOneHandler: func(string) {},
+		counterTwoHandler: func(string) {},
 	}
 }
 
-func (m *CounterModel) CounterOneRef() *string {
-	return &m.counterOne
+func (m *CounterModel) GetInitialLabel() string {
+	return "not started"
 }
 
-func (m *CounterModel) CounterTwoRef() *string {
-	return &m.counterTwo
+func (m *CounterModel) SetCounterOneHandler(h func(string)) {
+	m.counterOneHandler = h
+}
+
+func (m *CounterModel) SetCounterTwoHandler(h func(string)) {
+	m.counterTwoHandler = h
 }
 
 func (m *CounterModel) Run() {
 	//TODO fixme
 	ctx := context.Background()
 	p1 := producer.NewCountProducer(ctx, "producer-1", time.Duration(0))
-	c1 := consumer.NewStrConsumer[dto.Tick](ctx, "consumer-1", p1.Data(), &m.counterOne)
+	c1 := consumer.NewFuncConsumer[dto.Tick](ctx, "consumer-1", p1.Data(), m.counterOneHandler)
 
 	var wg sync.WaitGroup
 	wg.Go(func() {

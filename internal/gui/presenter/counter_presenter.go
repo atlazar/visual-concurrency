@@ -2,13 +2,14 @@ package presenter
 
 type CounterView interface {
 	SetOnCountClick(func())
-	BindCounterOne(*string)
-	BindCounterTwo(*string)
+	SetCounterOneText(text string)
+	SetCounterTwoText(text string)
 }
 
 type CounterModel interface {
-	CounterOneRef() *string
-	CounterTwoRef() *string
+	GetInitialLabel() string
+	SetCounterOneHandler(func(string))
+	SetCounterTwoHandler(func(string))
 	Run()
 }
 
@@ -22,12 +23,23 @@ func NewCounterPresenter(view CounterView, model CounterModel) *CounterPresenter
 		view:  view,
 		model: model,
 	}
+	view.SetCounterOneText(model.GetInitialLabel())
+	view.SetCounterTwoText(model.GetInitialLabel())
 	view.SetOnCountClick(presenter.onCountClick)
-	view.BindCounterOne(model.CounterOneRef())
-	view.BindCounterTwo(model.CounterTwoRef())
+
+	model.SetCounterOneHandler(presenter.onCounterOneChanged)
+	model.SetCounterTwoHandler(presenter.onCounterTwoChanged)
 	return &presenter
 }
 
 func (p *CounterPresenter) onCountClick() {
 	p.model.Run()
+}
+
+func (p *CounterPresenter) onCounterOneChanged(text string) {
+	p.view.SetCounterOneText(text)
+}
+
+func (p *CounterPresenter) onCounterTwoChanged(text string) {
+	p.view.SetCounterTwoText(text)
 }

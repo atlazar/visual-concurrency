@@ -5,23 +5,23 @@ import (
 	"fmt"
 )
 
-type strConsumer[T fmt.Stringer] struct {
+type funcConsumer[T fmt.Stringer] struct {
 	ctx  context.Context
 	name string
 	in   <-chan T
-	out  *string
+	f    func(string)
 }
 
-func NewStrConsumer[T fmt.Stringer](ctx context.Context, name string, in <-chan T, out *string) Consumer[T] {
-	return &strConsumer[T]{
+func NewFuncConsumer[T fmt.Stringer](ctx context.Context, name string, in <-chan T, f func(string)) Consumer[T] {
+	return &funcConsumer[T]{
 		ctx:  ctx,
 		name: name,
 		in:   in,
-		out:  out,
+		f:    f,
 	}
 }
 
-func (c *strConsumer[T]) Consume() {
+func (c *funcConsumer[T]) Consume() {
 	for {
 		select {
 		case value, ok := <-c.in:
@@ -29,7 +29,7 @@ func (c *strConsumer[T]) Consume() {
 				fmt.Printf("%s consume channel is closed\n", c.name)
 				return
 			}
-			*c.out = value.String()
+			c.f(value.String())
 		case <-c.ctx.Done():
 			fmt.Printf("%s interrupted by: %s\n", c.name, c.ctx.Err())
 			return

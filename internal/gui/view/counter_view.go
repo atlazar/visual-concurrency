@@ -1,11 +1,8 @@
 package view
 
 import (
-	"time"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
@@ -43,24 +40,16 @@ func (c *CounterView) SetOnCountClick(onCountClick func()) {
 	c.countButton.OnTapped = onCountClick
 }
 
-func (c *CounterView) BindCounterOne(ref *string) {
-	bRef := binding.BindString(ref)
+func (c *CounterView) SetCounterOneText(text string) {
 	go fyne.Do(func() {
-		c.counterOneLabel.Bind(bRef)
+		c.counterOneLabel.SetText(text)
+		c.counterOneLabel.Refresh()
 	})
-	go func() {
-		for {
-			time.Sleep(1 * time.Second)
-			fyne.Do(func() {
-				_ = bRef.Reload()
-			})
-		}
-	}()
 }
 
-func (c *CounterView) BindCounterTwo(ref *string) {
+func (c *CounterView) SetCounterTwoText(text string) {
 	go fyne.Do(func() {
-		bRef := binding.BindString(ref)
-		c.counterTwoLabel.Bind(bRef)
+		c.counterTwoLabel.SetText(text)
+		c.counterTwoLabel.Refresh()
 	})
 }
