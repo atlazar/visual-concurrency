@@ -10,6 +10,8 @@ import (
 	"github.com/atlazar/visual-concurrency/internal/producer"
 )
 
+const hangSec = 5
+
 type CounterModel struct {
 	counterOneHandler func(string)
 	counterTwoHandler func(string)
@@ -40,10 +42,18 @@ func (m *CounterModel) Run() {
 	p1 := producer.NewCountProducer(ctx, "producer-1", time.Duration(0))
 	c1 := consumer.NewFuncConsumer[dto.Tick](ctx, "consumer-1", p1.Data(), m.counterOneHandler)
 
+	p2 := producer.NewCountProducer(ctx, "producer-2", hangSec*time.Second)
+	c2 := consumer.NewFuncConsumer[dto.Tick](ctx, "consumer-2", p2.Data(), m.counterTwoHandler)
+
 	var wg sync.WaitGroup
 	wg.Go(func() {
 		defer p1.Close()
 		p1.Produce()
 	})
+	wg.Go(func() {
+		defer p2.Close()
+		p2.Produce()
+	})
 	wg.Go(c1.Consume)
+	wg.Go(c2.Consume)
 }
