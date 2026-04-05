@@ -1,7 +1,5 @@
 package presenter
 
-import "fmt"
-
 type CounterView interface {
 	SetOnCountClick(func())
 	BindCounterOne(*string)
@@ -11,6 +9,7 @@ type CounterView interface {
 type CounterModel interface {
 	CounterOneRef() *string
 	CounterTwoRef() *string
+	Run()
 }
 
 type CounterPresenter struct {
@@ -30,5 +29,5 @@ func NewCounterPresenter(view CounterView, model CounterModel) *CounterPresenter
 }
 
 func (p *CounterPresenter) onCountClick() {
-	fmt.Println("counter clicked")
+	p.model.Run()
 }
