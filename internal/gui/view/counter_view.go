@@ -16,9 +16,9 @@ type CounterView struct {
 }
 
 func NewCounterView() *CounterView {
-	counterOneLabel := widget.NewLabel("counter 1")
-	counterTwoLabel := widget.NewLabel("counter 2")
-	countButton := widget.NewButton("Open", func() {})
+	counterOneLabel := widget.NewLabel("")
+	counterTwoLabel := widget.NewLabel("")
+	countButton := widget.NewButton("Count", func() {})
 	return &CounterView{
 		counterOneLabel: counterOneLabel,
 		counterTwoLabel: counterTwoLabel,
@@ -42,11 +42,15 @@ func (c *CounterView) SetOnCountClick(onCountClick func()) {
 }
 
 func (c *CounterView) BindCounterOne(ref *string) {
-	bRef := binding.BindString(ref)
-	c.counterOneLabel.Bind(bRef)
+	go fyne.Do(func() {
+		bRef := binding.BindString(ref)
+		c.counterOneLabel.Bind(bRef)
+	})
 }
 
 func (c *CounterView) BindCounterTwo(ref *string) {
-	bRef := binding.BindString(ref)
-	c.counterTwoLabel.Bind(bRef)
+	go fyne.Do(func() {
+		bRef := binding.BindString(ref)
+		c.counterTwoLabel.Bind(bRef)
+	})
 }
