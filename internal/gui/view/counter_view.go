@@ -3,6 +3,7 @@ package view
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
@@ -38,4 +39,14 @@ func (c *CounterView) ShowAt(w fyne.Window) {
 
 func (c *CounterView) SetOnCountClick(onCountClick func()) {
 	c.countButton.OnTapped = onCountClick
+}
+
+func (c *CounterView) BindCounterOne(ref *string) {
+	bRef := binding.BindString(ref)
+	c.counterOneLabel.Bind(bRef)
+}
+
+func (c *CounterView) BindCounterTwo(ref *string) {
+	bRef := binding.BindString(ref)
+	c.counterTwoLabel.Bind(bRef)
 }

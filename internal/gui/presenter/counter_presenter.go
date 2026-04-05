@@ -4,9 +4,14 @@ import "fmt"
 
 type CounterView interface {
 	SetOnCountClick(func())
+	BindCounterOne(*string)
+	BindCounterTwo(*string)
 }
 
-type CounterModel interface{}
+type CounterModel interface {
+	CounterOneRef() *string
+	CounterTwoRef() *string
+}
 
 type CounterPresenter struct {
 	view  CounterView
@@ -19,6 +24,8 @@ func NewCounterPresenter(view CounterView, model CounterModel) *CounterPresenter
 		model: model,
 	}
 	view.SetOnCountClick(presenter.onCountClick)
+	view.BindCounterOne(model.CounterOneRef())
+	view.BindCounterTwo(model.CounterTwoRef())
 	return &presenter
 }
 
