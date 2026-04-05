@@ -53,3 +53,15 @@ func (c *Counter) SetTwoLabelText(text string) {
 		c.twoLabel.Refresh()
 	})
 }
+
+func (c *Counter) UpdateButton(text string, active bool) {
+	go fyne.Do(func() {
+		c.button.Text = text
+		if active {
+			c.button.Enable()
+		} else {
+			c.button.Disable()
+		}
+		c.button.Refresh()
+	})
+}
