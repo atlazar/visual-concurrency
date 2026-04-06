@@ -18,7 +18,10 @@ type Model interface {
 type Counter struct {
 	view  View
 	model Model
-	state State
+
+	labelOneState labelState
+	labelTwoState labelState
+	buttonState   buttonState
 }
 
 func NewCounterPresenter(view View, model Model) *Counter {
@@ -26,7 +29,7 @@ func NewCounterPresenter(view View, model Model) *Counter {
 		view:  view,
 		model: model,
 	}
-	presenter.SetState(NotStarted)
+	presenter.setState(labelNotStarted, labelNotStarted, buttonNotStarted)
 	view.SetOnButtonClick(presenter.onButtonClick)
 
 	model.SetCounterOneHandler(presenter.onCounterOneChanged)
@@ -36,34 +39,98 @@ func NewCounterPresenter(view View, model Model) *Counter {
 }
 
 func (p *Counter) onButtonClick() {
-	switch p.state {
-	case NotStarted:
-		p.SetState(Started)
+	switch p.buttonState {
+	case buttonNotStarted:
+		p.setState(labelStarting, labelStarting, buttonStarted)
 		p.model.StartCount()
-	case Started:
-		p.SetState(Stopping)
+	case buttonStarted:
+		p.setState(labelCancelled, labelCancelled, buttonStopping)
 		p.model.StopCount()
 	}
 }
 
 func (p *Counter) onCounterOneChanged(text string) {
+	p.setLabelOneState(labelStarted)
 	p.view.SetOneLabelText(text)
 }
 
 func (p *Counter) onCounterTwoChanged(text string) {
+	p.setLabelTwoState(labelStarted)
 	p.view.SetTwoLabelText(text)
 }
 
 func (p *Counter) onFinish() {
-	p.SetState(NotStarted)
+	p.setState(labelNotStarted, labelNotStarted, buttonNotStarted)
 }
 
-func (p *Counter) SetState(state State) {
-	p.state = state
-	p.view.UpdateButton(p.state.ButtonText, p.state.Active)
-	labelText := p.state.LabelText
-	if len(labelText) > 0 {
-		p.view.SetOneLabelText(labelText)
-		p.view.SetTwoLabelText(labelText)
+func (p *Counter) setState(
+	labelOneState labelState,
+	labelTwoState labelState,
+	buttonState buttonState,
+) {
+	p.setLabelOneState(labelOneState)
+	p.setLabelTwoState(labelTwoState)
+	p.setButtonState(buttonState)
+}
+
+func (p *Counter) setLabelOneState(state labelState) {
+	if !validMove(p.labelOneState, state) {
+		return
 	}
+
+	p.labelOneState = state
+	labelOneText := newLabelText(state)
+	if labelOneText != nil {
+		p.view.SetOneLabelText(*labelOneText)
+	}
+}
+
+func (p *Counter) setLabelTwoState(state labelState) {
+	if !validMove(p.labelTwoState, state) {
+		return
+	}
+
+	p.labelTwoState = state
+	labelTwoText := newLabelText(state)
+	if labelTwoText != nil {
+		p.view.SetTwoLabelText(*labelTwoText)
+	}
+}
+
+func (p *Counter) setButtonState(state buttonState) {
+	p.buttonState = state
+
+	switch state {
+	case buttonNotStarted:
+		p.view.UpdateButton("start", true)
+	case buttonStarted:
+		p.view.UpdateButton("stop", true)
+	case buttonStopping:
+		p.view.UpdateButton("stopping..", false)
+	}
+}
+
+func newLabelText(state labelState) *string {
+	switch state {
+	case labelNotStarted:
+		return new("not started")
+	case labelStarting:
+		return new("initializing")
+	case labelCancelled:
+		return new("cancelled")
+	}
+	return nil
+}
+
+func validMove(old labelState, new labelState) bool {
+	if old == "" && new == labelNotStarted {
+		return true
+	}
+	// to starting
+	return (old == labelNotStarted && new == labelStarting) ||
+		(old == labelStarted && new == labelStarting) ||
+		(old == labelCancelled && new == labelStarting) ||
+		// from starting
+		(old == labelStarting && new == labelStarted) ||
+		(old == labelStarting && new == labelCancelled)
 }
