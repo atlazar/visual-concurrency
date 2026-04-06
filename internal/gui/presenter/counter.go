@@ -25,10 +25,8 @@ func NewCounterPresenter(view View, model Model) *Counter {
 	presenter := Counter{
 		view:  view,
 		model: model,
-		state: NotStarted,
 	}
-	view.SetOneLabelText("not started")
-	view.SetTwoLabelText("not started")
+	presenter.SetState(NotStarted)
 	view.SetOnButtonClick(presenter.onButtonClick)
 
 	model.SetCounterOneHandler(presenter.onCounterOneChanged)

@@ -9,24 +9,29 @@ import (
 )
 
 type App struct {
+	model     *model.Counter
 	view      *view.Counter
 	presenter *presenter.Counter
+
+	window fyne.Window
 }
 
 func NewApp() *App {
+	window := fyneApp.New().NewWindow("VisualConcurrency")
+	window.CenterOnScreen()
+	window.Resize(fyne.NewSize(300, 10))
+
 	counterView := view.NewCounterView()
 	counterModel := model.NewCounterModel()
 	return &App{
+		model:     counterModel,
 		view:      counterView,
 		presenter: presenter.NewCounterPresenter(counterView, counterModel),
+
+		window: window,
 	}
 }
 
 func (app *App) Run() {
-	a := fyneApp.New()
-
-	w := a.NewWindow("VisualConcurrency")
-	w.CenterOnScreen()
-	w.Resize(fyne.NewSize(300, 10))
-	app.view.ShowAt(w)
+	app.view.ShowAt(app.window)
 }

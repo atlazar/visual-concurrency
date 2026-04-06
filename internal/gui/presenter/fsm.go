@@ -9,6 +9,7 @@ type State struct {
 var (
 	NotStarted = State{
 		ButtonText: "Start",
+		LabelText:  "not started",
 		Active:     true,
 	}
 	Started = State{
